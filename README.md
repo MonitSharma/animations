@@ -20,6 +20,8 @@ Common flags:
 
 ## Examples
 
+![alt text](videos/simple_auto_10s.gif)
+
 - Save an MP4 at low resolution:
   - `python -m manimlib generation.py SimpleAutogregression -l -w`
 - Save a GIF at low resolution:
