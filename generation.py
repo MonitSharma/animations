@@ -123,6 +123,9 @@ class SimpleAutogregression(InteractiveScene):
     skip_through = False
     random_seed = 0
     model = "gpt2"
+    # Sampling temperature for choosing the next token from the
+    # displayed distribution. Set to 0 for deterministic (argmax) selection.
+    temperature = 0.0
 
     def construct(self):
         # Repeatedly generate
@@ -298,16 +301,29 @@ class SimpleAutogregression(InteractiveScene):
         highlight_rect.set_stroke(YELLOW, 2)
         highlight_rect.set_fill(YELLOW, 0.25)
 
-        def highlight_randomly(rect, dist, alpha):
-            np.random.seed(seed + int(10 * alpha))
-            index = np.random.choice(np.arange(len(dist)), p=dist)
-            rect.surround(bar_groups[index], buff=buff)
-            rect.stretch(1.1, 0)
+        temp = getattr(self, "temperature", 0.0)
+        if temp == 0:
+            # Deterministic: choose the most probable (top) bar
+            index = 0
+            highlight_rect.surround(bar_groups[index], buff=buff)
+            highlight_rect.stretch(1.1, 0)
+            self.play(ShowCreation(highlight_rect), Animation(bar_groups))
+        else:
+            # Optional temperature scaling for probabilistic sampling
+            if temp != 1.0:
+                dist = dist ** (1.0 / temp)
+                dist = dist / dist.sum()
 
-        self.play(
-            UpdateFromAlphaFunc(highlight_rect, lambda rect, a: highlight_randomly(rect, dist, a)),
-            Animation(bar_groups)
-        )
+            def highlight_randomly(rect, dist, alpha):
+                np.random.seed(seed + int(10 * alpha))
+                index = np.random.choice(np.arange(len(dist)), p=dist)
+                rect.surround(bar_groups[index], buff=buff)
+                rect.stretch(1.1, 0)
+
+            self.play(
+                UpdateFromAlphaFunc(highlight_rect, lambda rect, a: highlight_randomly(rect, dist, a)),
+                Animation(bar_groups)
+            )
 
         bar_groups.add_to_back(highlight_rect)
 
