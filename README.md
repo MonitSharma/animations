@@ -20,7 +20,15 @@ Common flags:
 
 ## Examples
 
+**Non-Deterministic**
+
 ![alt text](videos/simple_auto_10s.gif)
+
+
+
+**Deterministic**
+
+![alt text](videos/simple_auto_deter_20s.gif)
 
 - Save an MP4 at low resolution:
   - `python -m manimlib generation.py SimpleAutogregression -l -w`
